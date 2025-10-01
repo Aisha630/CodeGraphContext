@@ -109,7 +109,7 @@ def _configure_ide(mcp_config):
         {
             "type": "list",
             "message": "Choose your IDE/CLI to configure:",
-            "choices": ["VS Code", "Cursor", "Windsurf", "Claude code", "Gemini CLI", "ChatGPT Codex", "Cline", "RooCode", "Amazon Q Developer", "None of the above"],
+            "choices": ["VS Code", "Cursor", "Windsurf", "Claude code", "Gemini CLI", "ChatGPT Codex", "Cline", "RooCode", "Amazon Q Developer", "JetBrainsAI" , "None of the above"],
             "name": "ide_choice",
         }
     ]
@@ -163,6 +163,12 @@ def _configure_ide(mcp_config):
                 Path.home() / ".config" / "Code - OSS" / "User" / "globalStorage" / "saoudrizwan.claude-dev" / "settings" / "cline_mcp_settings.json",
                 Path.home() / "Library" / "Application Support" / "Code" / "User" / "globalStorage" / "saoudrizwan.claude-dev" / "settings" / "cline_mcp_settings.json",
                 Path.home() / "AppData" / "Roaming" / "Code" / "User" / "globalStorage" / "saoudrizwan.claude-dev" / "settings" / "cline_mcp_settings.json"
+            ],
+            "JetBrainsAI": [
+                Path.home() / ".config" / "Code" / "User" / "globalStorage" / "jetbrains.jetbrains-ai-assistant",
+                Path.home() / ".config" / "Code - OSS" / "User" / "globalStorage" / "jetbrains.jetbrains-ai-assistant/",
+                Path.home() / "Library" / "Application Support" / "Code" / "User" / "globalStorage" / "jetbrains.jetbrains-ai-assistant/",
+                Path.home() / "AppData" / "Roaming" / "Code" / "User" / "globalStorage" / "jetbrains.jetbrains-ai-assistant/",
             ],
             "RooCode": [
                 Path.home() / ".config" / "Code" / "User" / "settings.json",   # Linux 
