@@ -3,7 +3,6 @@ from email.mime import text
 import urllib.parse
 import asyncio
 import json
-import logging
 import importlib
 import stdlibs
 import sys
@@ -24,9 +23,7 @@ from .core.watcher import CodeWatcher
 from .tools.graph_builder import GraphBuilder
 from .tools.code_finder import CodeFinder
 from .tools.package_resolver import get_local_package_path
-from .utils.debug_log import debug_log
-
-logger = logging.getLogger(__name__)
+from .utils.debug_log import debug_log, info_logger, error_logger, warning_logger
 
 DEFAULT_EDIT_DISTANCE = 2
 DEFAULT_FUZZY_SEARCH = False
@@ -474,7 +471,7 @@ class MCPServer:
                 }
             
         except Exception as e:
-            logger.error(f"Failed to start watching directory {path}: {e}")
+            error_logger(f"Failed to start watching directory {path}: {e}")
             return {"error": f"Failed to start watching directory: {str(e)}"}        
     
     def add_code_to_graph_tool(self, **args) -> Dict[str, Any]:
@@ -760,7 +757,7 @@ class MCPServer:
         requests, and routes them to the appropriate handlers (e.g., initialize,
         tools/list, tools/call). The response is then printed to stdout.
         """
-        logger.info("MCP Server is running. Waiting for requests...")
+        info_logger("MCP Server is running. Waiting for requests...")
         self.code_watcher.start()
         
         loop = asyncio.get_event_loop()
@@ -769,7 +766,7 @@ class MCPServer:
                 # Read a request from the standard input.
                 line = await loop.run_in_executor(None, sys.stdin.readline)
                 if not line:
-                    logger.info("Client disconnected (EOF received). Shutting down.")
+                    info_logger("Client disconnected (EOF received). Shutting down.")
                     break
                 
                 request = json.loads(line.strip())
@@ -829,7 +826,7 @@ class MCPServer:
                     print(json.dumps(response), flush=True)
 
             except Exception as e:
-                logger.error(f"Error processing request: {e}\n{traceback.format_exc()}")
+                error_logger(f"Error processing request: {e}\n{traceback.format_exc()}")
                 request_id = "unknown"
                 if 'request' in locals() and isinstance(request, dict):
                     request_id = request.get('id', "unknown")
@@ -842,6 +839,6 @@ class MCPServer:
 
     def shutdown(self):
         """Gracefully shuts down the server and its components."""
-        logger.info("Shutting down server...")
+        info_logger("Shutting down server...")
         self.code_watcher.stop()
         self.db_manager.close_driver()
