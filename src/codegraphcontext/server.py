@@ -1,4 +1,5 @@
 # src/codegraphcontext/server.py
+from email.mime import text
 import urllib.parse
 import asyncio
 import json
@@ -26,6 +27,9 @@ from .tools.package_resolver import get_local_package_path
 from .utils.debug_log import debug_log
 
 logger = logging.getLogger(__name__)
+
+DEFAULT_EDIT_DISTANCE = 2
+DEFAULT_FUZZY_SEARCH = False
 
 class MCPServer:
     """
@@ -113,7 +117,7 @@ class MCPServer:
                 "description": "Find relevant code snippets related to a keyword (e.g., function name, class name, or content).",
                 "inputSchema": {
                     "type": "object",
-                    "properties": { "query": {"type": "string", "description": "Keyword or phrase to search for"} },
+                    "properties": { "query": {"type": "string", "description": "Keyword or phrase to search for"}, "fuzzy_search": {"type": "boolean", "description": "Whether to use fuzzy search", "default": False}, "edit_distance": {"type": "number", "description": "Edit distance for fuzzy search (between 0-2)", "default": 2}}, 
                     "required": ["query"]
                 }
             },
@@ -686,15 +690,24 @@ class MCPServer:
         except Exception as e:
             debug_log(f"Error analyzing relationships: {str(e)}")
             return {"error": f"Failed to analyze relationships: {str(e)}"}
+    
+    @staticmethod
+    def _normalize(text: str) -> str:
+        return text.lower().replace("_", " ").strip()
 
     def find_code_tool(self, **args) -> Dict[str, Any]:
         """Tool to find relevant code snippets"""
         query = args.get("query")
-        
-        try:
-            debug_log(f"Finding code for query: {query}")
-            results = self.code_finder.find_related_code(query)
+        fuzzy_search = args.get("fuzzy_search", DEFAULT_FUZZY_SEARCH)
+        edit_distance = args.get("edit_distance", DEFAULT_EDIT_DISTANCE)
+
+        if fuzzy_search:
+            query = self.normalize(query)
             
+        try:
+            debug_log(f"Finding code for query: {query} with fuzzy_search={fuzzy_search}, edit_distance={edit_distance}")
+            results = self.code_finder.find_related_code(query, fuzzy_search, edit_distance)
+
             return {"success": True, "query": query, "results": results}
         
         except Exception as e:
