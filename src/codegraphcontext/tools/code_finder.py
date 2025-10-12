@@ -70,7 +70,7 @@ class CodeFinder:
                     LIMIT 20
                 """, search_term=search_term)
                 return [dict(record) for record in result]
-                
+
     def find_by_variable_name(self, search_term: str) -> List[Dict]:
         """Find variables by name matching"""
         with self.driver.session() as session:
@@ -85,7 +85,7 @@ class CodeFinder:
             
             return [dict(record) for record in result]
 
-    def find_by_content(self, search_term: str, fuzzy_search: bool) -> List[Dict]:
+    def find_by_content(self, search_term: str) -> List[Dict]:
         """Find code by content matching in source or docstrings using the full-text index."""
         with self.driver.session() as session:
             result = session.run("""
@@ -114,9 +114,9 @@ class CodeFinder:
             user_query_normalized = user_query
 
         results = {
-            "query": user_query,
-            "functions_by_name": self.find_by_function_name(user_query_normalized),
-            "classes_by_name": self.find_by_class_name(user_query_normalized),
+            "query": user_query_normalized,
+            "functions_by_name": self.find_by_function_name(user_query_normalized, fuzzy_search),
+            "classes_by_name": self.find_by_class_name(user_query_normalized, fuzzy_search),
             "variables_by_name": self.find_by_variable_name(user_query), # no fuzzy for variables as they are not using full-text index
             "content_matches": self.find_by_content(user_query_normalized)
         }

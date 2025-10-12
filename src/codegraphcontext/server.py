@@ -702,7 +702,7 @@ class MCPServer:
         edit_distance = args.get("edit_distance", DEFAULT_EDIT_DISTANCE)
 
         if fuzzy_search:
-            query = self.normalize(query)
+            query = self._normalize(query)
             
         try:
             debug_log(f"Finding code for query: {query} with fuzzy_search={fuzzy_search}, edit_distance={edit_distance}")
