@@ -19,7 +19,7 @@ class CodeFinder:
         """Find functions by name matching using the full-text index."""
         if fuzzy_search:
             with self.driver.session() as session:
-                search_term = f"name:{search_term}"
+                formatted_search_term = f"name:{search_term}"
                 result = session.run("""
                     CALL db.index.fulltext.queryNodes("code_search_index", $search_term) YIELD node, score
                     WITH node, score
@@ -28,7 +28,7 @@ class CodeFinder:
                         node.source as source, node.docstring as docstring, node.is_dependency as is_dependency
                     ORDER BY score DESC
                     LIMIT 20
-                """, search_term=search_term)
+                """, search_term=formatted_search_term)
                 return [dict(record) for record in result]
         else:
             with self.driver.session() as session:
@@ -47,7 +47,7 @@ class CodeFinder:
         """Find classes by name matching using the full-text index."""
         if fuzzy_search:
             with self.driver.session() as session:
-                search_term = f"name:{search_term}"
+                formatted_search_term = f"name:{search_term}"
                 result = session.run("""
                     CALL db.index.fulltext.queryNodes("code_search_index", $search_term) YIELD node, score
                     WITH node, score
@@ -56,7 +56,7 @@ class CodeFinder:
                         node.source as source, node.docstring as docstring, node.is_dependency as is_dependency
                     ORDER BY score DESC
                     LIMIT 20
-                """, search_term=search_term)
+                """, search_term=formatted_search_term)
                 return [dict(record) for record in result]
         else:
             with self.driver.session() as session:
@@ -117,7 +117,7 @@ class CodeFinder:
             "query": user_query_normalized,
             "functions_by_name": self.find_by_function_name(user_query_normalized, fuzzy_search),
             "classes_by_name": self.find_by_class_name(user_query_normalized, fuzzy_search),
-            "variables_by_name": self.find_by_variable_name(user_query), # no fuzzy for variables as they are not using full-text index
+            "variables_by_name": self.find_by_variable_name(user_query),  # no fuzzy for variables as they are not using full-text index
             "content_matches": self.find_by_content(user_query_normalized)
         }
         
